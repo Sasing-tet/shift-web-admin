@@ -1,0 +1,140 @@
+@import url("https://fonts.googleapis.com/css?family=Raleway");
+@import url("https://fonts.googleapis.com/css2?family=Raleway:wght@700");
+@import url("https://fonts.googleapis.com/css2?family=Raleway:wght@400");
+
+.p {
+  margin: 0;
+}
+
+.loginContainer {
+  display: flex;
+}
+
+.shiftLogo {
+  width: 270px;
+  height: auto;
+}
+
+.heroTextContainer {
+  margin: 20px 0 30px 0;
+}
+
+.heroHeaderText {
+  font-size: 20px;
+  line-height: 20px;
+  font-family: "Raleway";
+  font-weight: lighter;
+  font-weight: 700;
+  color: #55686a;
+  letter-spacing: 3px;
+  margin: 0;
+  padding: 0;
+}
+
+.heroTextDescription {
+  max-width: 400px;
+  font-size: 20px;
+  line-height: 25px;
+  font-family: "Raleway";
+  font-weight: lighter;
+  font-weight: 700;
+  color: #55686a;
+  letter-spacing: 2px;
+  margin-top: 15px;
+  padding: 0;
+}
+
+.heroText {
+  font-size: 70px;
+  line-height: 75px;
+  font-family: "Raleway";
+  font-weight: lighter;
+  font-weight: 700;
+  margin: 0;
+  padding: 0;
+}
+
+.loginForm {
+  position: absolute;
+  display: flex;
+  justify-content: space-between;
+  width: 900px;
+  background-color: white;
+  border-radius: 10px;
+  padding: 30px;
+  box-shadow: -3px 3px 10px 2px #55686a59;
+}
+
+.loginFormContainer {
+  width: 1000px;
+  padding: 40px;
+  background-color: #fcfcfc;
+}
+
+/* .loginFormFields {
+  width: 50%;
+} */
+
+.fieldLabel {
+  font-family: "Raleway";
+  font-weight: 400;
+  padding: 5px;
+  margin-top: 5px;
+}
+
+.fieldLabelBtn {
+  font-family: "Raleway";
+  font-size: 12px;
+  font-weight: 400;
+  padding: 5px;
+}
+
+/* .loginButtonContainer {
+  padding: 5px;
+} */
+
+.loginButton {
+  background-color: #071a52;
+  width: 100%;
+  color: white;
+  margin-top: 20px;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: 0.3s ease-in-out;
+}
+
+.loginButton:hover {
+  background-color: #102c7d;
+  color: white;
+  border: none;
+  cursor: pointer;
+  transition: 0.3s ease-in-out;
+}
+
+.fieldInput {
+  border-radius: 5px;
+  border: solid 1px #afafaf;
+  width: 250px;
+}
+
+.loginExtraImageContainer {
+  display: flex;
+}
+
+.loginExtraImage {
+  width: 320px;
+  height: auto;
+}
+
+.loginImage {
+  height: 100vh;
+  width: 100%;
+  object-fit: cover;
+  object-position: right bottom;
+}
+
+.loginImageContainer {
+  /* flex-grow: 1; */
+}

@@ -1,0 +1,179 @@
+.sidebarContainer {
+  background-color: #071a52;
+}
+
+.sidenav {
+  width: 350px;
+  transition: width 0.3s ease-in-out;
+  height: 100vh;
+  background-color: #071a52;
+  flex: 0 0 auto;
+}
+
+.sidenavClosed {
+  /* composes: sidenav; */
+  transition: width 0.3s ease-in-out;
+  background-color: #071a52;
+  width: 60px;
+}
+
+.sideNavHeader {
+  display: flex;
+  justify-content: space-between;
+}
+
+.SidenavLogo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+  width: 70px;
+  height: 70px;
+  transition: 0.3s ease-in-out;
+}
+
+.SidenavLogoClosed {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 50px;
+  height: 50px;
+  padding: 5px;
+  transition: 0.3s ease-in-out;
+}
+
+.sideNavLogoText {
+  display: flex;
+}
+
+.sideNavLogoTextClosed {
+  padding-left: 2px;
+}
+
+.logoText {
+  padding-left: 10px;
+  display: flex;
+  align-items: center;
+  color: white;
+  font-size: 30px;
+  font-weight: 600;
+  letter-spacing: 3px;
+  transition: 0.3s ease-in-out;
+}
+
+.logoTextClosed {
+  transition: 0.3s ease-in-out;
+  display: none;
+}
+
+.sideitem {
+  align-items: center;
+  justify-content: center;
+  align-content: center;
+  padding: 10px;
+  cursor: pointer;
+  color: #ffffff;
+  text-decoration: none;
+}
+
+.navItemIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.navItemIconClosed {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+}
+
+.sidebarItems {
+  display: grid;
+  grid-template-columns: 25% 25% 25% 25%;
+  transition: 0.3s ease-in-out;
+  border-bottom: 1px solid #ffffff;
+}
+
+.sidebarItemsClosed {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  transition: 0.3s ease-in-out;
+  background-color: #071a52;
+  border-bottom: 1px solid #ffffff;
+  border-top: 1px solid #ffffff;
+}
+
+.linkText {
+  /* padding-left: 16px; */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.linkTextClosed {
+  /* composes: linkText; */
+  display: none;
+}
+
+.sideitem:hover,
+.sideitem:active {
+  background-color: #0e256a;
+}
+
+.menuBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-right: 20px;
+  color: #ffffff;
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.menuBtnClosed {
+  display: flex;
+  margin: 0 auto;
+  padding: 10px;
+  color: #ffffff;
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.sidenavBottomBar {
+  position: absolute;
+  bottom: 0;
+}
+
+.sidenavBottomBarClosed {
+  position: absolute;
+  bottom: 0;
+}
+
+.logOutBtn {
+  display: flex;
+  padding: 10px;
+  margin-left: 5px;
+  color: #ffffff;
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.spacebetweenTopAndBottom {
+  justify-content: space-between;
+}
+
+.logoutText {
+  display: flex;
+  align-items: center;
+  padding-left: 10px;
+}
+
+.logoutTextClosed {
+  display: none;
+}
