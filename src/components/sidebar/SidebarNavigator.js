@@ -10,7 +10,7 @@ import { useRouter } from "next/router";
 
 export default function Sidenav() {
   const router = useRouter();
-  const [open, setopen] = useState(true);
+  const [open, setopen] = useState(false);
 
   const toggleOpen = () => {
     setopen(!open);
