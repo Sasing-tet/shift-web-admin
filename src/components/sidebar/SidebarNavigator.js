@@ -4,7 +4,12 @@ import KeyboardDoubleArrowRightIcon from "@mui/icons-material/KeyboardDoubleArro
 import KeyboardDoubleArrowLeftIcon from "@mui/icons-material/KeyboardDoubleArrowLeft";
 import Logout from "@mui/icons-material/Logout";
 import { useRouter } from "next/router";
-import { uploadGeoJSONToSupabase } from "../utils/utils";
+import {
+  validateGeoJSON,
+  callSavingFloodzoneGeomRPC,
+  getUserInputLevel,
+  extractDataFromGeoJSON,
+} from "../utils/utils";
 import styles from "@/styles/Sidebar.module.css";
 import Image from "next/image";
 import shifticon from "../../assets/shifticon.png";
@@ -23,13 +28,24 @@ export default function SidebarNavigator() {
     const file = event.target.files[0];
     if (file) {
       try {
-        const fileContent = await file.text(); // Read the file content
-        await uploadGeoJSONToSupabase(fileContent); // Upload GeoJSON to Supabase
-        // Handle successful upload
+        const fileContent = await file.text();
+
+        const level = await getUserInputLevel();
+
+        const { name, crs, description, coordinates_text } =
+          extractDataFromGeoJSON(fileContent);
+
+        await callSavingFloodzoneGeomRPC({
+          name,
+          level,
+          crs,
+          description,
+          coordinates_text,
+        });
+
         console.log("GeoJSON uploaded successfully!");
       } catch (error) {
         console.error("Error uploading GeoJSON:", error);
-        // Handle upload error
       }
     }
   };
@@ -43,23 +59,6 @@ export default function SidebarNavigator() {
     fileInput.click();
   };
 
-  const handleProceedButtonClick = async () => {
-    const fileInput = document.getElementById("fileInput");
-    if (fileInput && fileInput.files.length > 0) {
-      const file = fileInput.files[0];
-      try {
-        const fileContent = await file.text(); // Read the file content
-        await uploadGeoJSONToSupabase(fileContent); // Upload GeoJSON to Supabase
-        console.log("GeoJSON uploaded successfully!");
-        console.log("Proceed button clicked!");
-      } catch (error) {
-        console.error("Error uploading GeoJSON:", error);
-        // Handle upload error
-      }
-    } else {
-      console.log("No file selected!");
-    }
-  };
   return (
     <div className={styles.sidebarContainer}>
       {/* Sidebar content */}
@@ -121,6 +120,8 @@ export default function SidebarNavigator() {
                   </div>
                 </div>
               ))}
+            </div>
+            <div>
               {/* File upload button */}
               <label className={styles.sideitem}>
                 <div className={styles.navItemIcon}>
@@ -136,14 +137,6 @@ export default function SidebarNavigator() {
                 />
                 <div className={styles.linkText}>Upload GeoJSON</div>
               </label>
-
-              {/* Proceed button */}
-              <button
-                className={styles.proceedButton}
-                onClick={handleProceedButtonClick}
-              >
-                Proceed with Upload
-              </button>
             </div>
           </div>
           {/* Logout button */}
