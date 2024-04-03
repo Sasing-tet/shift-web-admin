@@ -78,3 +78,20 @@ export const callSavingFloodzoneGeomRPC = async ({
     throw error;
   }
 };
+
+export const fetchFloodzoneData = async () => {
+  try {
+    const { data, error } = await supabase
+      .from("floodzone_geojson_view")
+      .select("*");
+    console.log("Floodzone data:", data);
+    console.log("Floodzone error:", error);
+    if (error) {
+      throw error;
+    }
+    return data;
+  } catch (error) {
+    console.error("Error fetching floodzone data:", error.message);
+    throw error;
+  }
+};
