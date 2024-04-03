@@ -14,14 +14,41 @@ import styles from "@/styles/Sidebar.module.css";
 import Image from "next/image";
 import shifticon from "../../assets/shifticon.png";
 import { navData } from "./SidebarData";
-import UploadFileIcon from "@mui/icons-material/UploadFile";
+import UploadContent from "../sidebar/sidebar_components/uploadContent";
 
-export default function SidebarNavigator() {
+export default function SidebarNavigator({ floodzoneData }) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
+  const [activeNavItem, setActiveNavItem] = useState(null);
+
+  const initialCityVisibility = {};
+  floodzoneData.forEach((geoJSONData) => {
+    initialCityVisibility[geoJSONData.properties.cityName] = true;
+  });
+
+  const [cityVisibility, setCityVisibility] = useState(initialCityVisibility);
 
   const toggleOpen = () => {
     setOpen(!open);
+    if (!open) {
+      setActiveNavItem(null);
+    }
+  };
+
+  const handleNavItemClicked = (itemId) => {
+    setOpen(true);
+    setActiveNavItem(itemId);
+
+    const sidebarItems = document.querySelectorAll(`.${styles.sideitem}`);
+    sidebarItems.forEach((item) => {
+      item.style.backgroundColor = "transparent";
+    });
+
+    const clickedItem = document.querySelector(
+      `.${styles.sideitem}[data-id="${itemId}"]`
+    );
+    clickedItem.style.backgroundColor = "#0e256a";
+    console.log(clickedItem);
   };
 
   const handleUpload = async (event) => {
@@ -54,9 +81,46 @@ export default function SidebarNavigator() {
     router.push("/loginPage");
   };
 
-  const handleUploadButtonClick = () => {
-    const fileInput = document.getElementById("fileInput");
-    fileInput.click();
+  // const handleUploadButtonClick = () => {
+  //   const fileInput = document.getElementById("fileInput");
+  //   fileInput.click();
+  // };
+
+  const toggleCityVisibility = (cityName) => {
+    setCityVisibility((prevVisibility) => ({
+      ...prevVisibility,
+      [cityName]: !prevVisibility[cityName],
+    }));
+  };
+
+  const renderNavContent = () => {
+    if (!open || activeNavItem === null) return null;
+
+    switch (activeNavItem) {
+      case 1:
+        return <UploadContent handleUpload={handleUpload} />;
+      case 2:
+        return <div>Statistics Content</div>;
+      case 3:
+        return (
+          <div>
+            <h2>Settings</h2>
+            {Object.keys(cityVisibility).map((cityName) => (
+              <div key={cityName}>
+                <input
+                  type="checkbox"
+                  checked={cityVisibility[cityName]}
+                  onChange={() => toggleCityVisibility(cityName)}
+                />
+                <label>{cityName}</label>
+              </div>
+            ))}
+          </div>
+        );
+      // return <div>Settings Content</div>;
+      default:
+        return null;
+    }
   };
 
   return (
@@ -105,7 +169,14 @@ export default function SidebarNavigator() {
               className={open ? styles.sidebarItems : styles.sidebarItemsClosed}
             >
               {navData.map((item) => (
-                <div key={item.id} className={styles.sideitem}>
+                <div
+                  key={item.id}
+                  className={`${styles.sideitem} ${
+                    activeNavItem === item.id ? "active" : ""
+                  }`}
+                  onClick={() => handleNavItemClicked(item.id)}
+                  data-id={item.id}
+                >
                   <div
                     className={
                       open ? styles.navItemIcon : styles.navItemIconClosed
@@ -121,23 +192,8 @@ export default function SidebarNavigator() {
                 </div>
               ))}
             </div>
-            <div>
-              {/* File upload button */}
-              <label className={styles.sideitem}>
-                <div className={styles.navItemIcon}>
-                  <UploadFileIcon />
-                </div>
-                <input
-                  type="file"
-                  accept=".geojson"
-                  className={styles.uploadInput}
-                  id="fileInput"
-                  onChange={handleUpload}
-                  style={{ display: "none" }} // Hide the file input
-                />
-                <div className={styles.linkText}>Upload GeoJSON</div>
-              </label>
-            </div>
+            {/* Nav contents */}
+            <div className={styles.navContents}>{renderNavContent()}</div>
           </div>
           {/* Logout button */}
           <div

@@ -118,8 +118,7 @@
   display: none;
 }
 
-.sideitem:hover,
-.sideitem:active {
+.sideitem:hover .sideitem:active {
   background-color: #0e256a;
 }
 
