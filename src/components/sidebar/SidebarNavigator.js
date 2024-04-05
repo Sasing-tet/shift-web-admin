@@ -15,18 +15,34 @@ import Image from "next/image";
 import shifticon from "../../assets/shifticon.png";
 import { navData } from "./SidebarData";
 import UploadContent from "../sidebar/sidebar_components/uploadContent";
+import SettingsContent from "./sidebar_components/settingsContent";
 
-export default function SidebarNavigator({ floodzoneData }) {
+export default function SidebarNavigator({
+  groupedCityData,
+  setGroupedCityData,
+}) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [activeNavItem, setActiveNavItem] = useState(null);
 
-  const initialCityVisibility = {};
-  floodzoneData.forEach((geoJSONData) => {
-    initialCityVisibility[geoJSONData.properties.cityName] = true;
-  });
+  const toggleCityVisibility = (cityName) => {
+    setGroupedCityData((prevData) => ({
+      ...prevData,
+      [cityName]: {
+        ...prevData[cityName],
+        visible: !prevData[cityName].visible,
+      },
+    }));
+  };
 
-  const [cityVisibility, setCityVisibility] = useState(initialCityVisibility);
+  const toggleAllVisibility = () => {
+    const updatedGroupedCityData = { ...groupedCityData };
+    for (const cityName in updatedGroupedCityData) {
+      updatedGroupedCityData[cityName].visible =
+        !updatedGroupedCityData[cityName].visible;
+    }
+    setGroupedCityData(updatedGroupedCityData);
+  };
 
   const toggleOpen = () => {
     setOpen(!open);
@@ -81,18 +97,6 @@ export default function SidebarNavigator({ floodzoneData }) {
     router.push("/loginPage");
   };
 
-  // const handleUploadButtonClick = () => {
-  //   const fileInput = document.getElementById("fileInput");
-  //   fileInput.click();
-  // };
-
-  const toggleCityVisibility = (cityName) => {
-    setCityVisibility((prevVisibility) => ({
-      ...prevVisibility,
-      [cityName]: !prevVisibility[cityName],
-    }));
-  };
-
   const renderNavContent = () => {
     if (!open || activeNavItem === null) return null;
 
@@ -103,21 +107,14 @@ export default function SidebarNavigator({ floodzoneData }) {
         return <div>Statistics Content</div>;
       case 3:
         return (
-          <div>
-            <h2>Settings</h2>
-            {Object.keys(cityVisibility).map((cityName) => (
-              <div key={cityName}>
-                <input
-                  type="checkbox"
-                  checked={cityVisibility[cityName]}
-                  onChange={() => toggleCityVisibility(cityName)}
-                />
-                <label>{cityName}</label>
-              </div>
-            ))}
+          <div style={{ backgroundColor: "white" }}>
+            <SettingsContent
+              groupedCityData={groupedCityData}
+              toggleCityVisibility={toggleCityVisibility}
+              toggleAllVisibility={toggleAllVisibility}
+            />
           </div>
         );
-      // return <div>Settings Content</div>;
       default:
         return null;
     }
