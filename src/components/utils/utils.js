@@ -85,7 +85,6 @@ export const fetchFloodzoneData = async () => {
       .from("floodzone_geojson_view")
       .select("*");
     console.log("Floodzone data:", data);
-    console.log("Floodzone error:", error);
     if (error) {
       throw error;
     }
@@ -94,4 +93,42 @@ export const fetchFloodzoneData = async () => {
     console.error("Error fetching floodzone data:", error.message);
     throw error;
   }
+};
+
+export const formatGeoJSON = (floodzoneData) => {
+  const features = [];
+
+  for (const dataItem of floodzoneData) {
+    const cityName = dataItem.name.split("_")[0];
+
+    features.push({
+      type: "Feature",
+      properties: {
+        floodzoneid: dataItem.floodzoneid,
+        name: dataItem.name,
+        level: dataItem.level,
+        description: dataItem.description,
+        cityName,
+      },
+      geometry: dataItem.coordinates_geojson,
+    });
+  }
+
+  return {
+    type: "FeatureCollection",
+    name: "FloodzoneData",
+    crs: {
+      type: "name",
+      properties: { name: "urn:ogc:def:crs:OGC:1.3:CRS84" },
+    },
+    features,
+  };
+};
+
+export const getInitialVisibilityState = (floodzoneData) => {
+  const initialVisibility = {};
+  for (const city of floodzoneData) {
+    initialVisibility[city.properties.name] = true; // Set all cities to visible initially
+  }
+  return initialVisibility;
 };
