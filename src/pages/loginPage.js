@@ -1,4 +1,5 @@
 // LoginPage.js
+import Head from "next/head";
 import { useState } from "react";
 import { useRouter } from "next/router";
 import styles from "@/styles/Login.module.css";
@@ -18,6 +19,10 @@ const LoginPage = () => {
 
   return (
     <div className={styles.loginContainer}>
+      <Head>
+        <title>SHIFT Admin</title>
+        <link rel="icon" href="/shifticon.png" />
+      </Head>
       <div className={styles.loginFormContainer}>
         <div>
           <Image

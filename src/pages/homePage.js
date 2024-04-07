@@ -1,4 +1,5 @@
 // homePage.js
+import Head from "next/head";
 import React, { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
 import Sidenav from "@/components/sidebar/SidebarNavigator";
@@ -7,6 +8,9 @@ import {
   formatGeoJSON,
   getInitialVisibilityState,
 } from "../components/utils/utils";
+import styles from "@/styles/Home.module.css";
+
+import WeatherForecastWidget from "../components/weatherforecast/weatherForecastWidget";
 
 const OpenStreetMap = dynamic(() => import("../components/OpenStreetMap"), {
   ssr: false,
@@ -41,18 +45,28 @@ const home = () => {
   }, []);
 
   return (
-    <div className="home-components">
-      <Sidenav
-        cityVisibility={cityVisibility}
-        setCityVisibility={setCityVisibility}
-        floodzoneData={floodzoneData}
-      />
-      <OpenStreetMap
-        floodzoneData={floodzoneData}
-        cityVisibility={cityVisibility}
-        cityOrder={cityOrder}
-      />
-      <div></div>
+    <div>
+      <div className={styles.weatherforecastWidget}>
+        {" "}
+        <WeatherForecastWidget />
+      </div>
+      <div className="home-components">
+        <Head>
+          <title>SHIFT Admin</title>
+          <link rel="icon" href="/shifticon.png" />
+        </Head>
+        <Sidenav
+          cityVisibility={cityVisibility}
+          setCityVisibility={setCityVisibility}
+          floodzoneData={floodzoneData}
+        />
+
+        <OpenStreetMap
+          floodzoneData={floodzoneData}
+          cityVisibility={cityVisibility}
+          cityOrder={cityOrder}
+        />
+      </div>
     </div>
   );
 };
