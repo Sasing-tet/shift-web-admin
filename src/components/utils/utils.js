@@ -1,20 +1,34 @@
 //utils.js
 import { createClient } from "@supabase/supabase-js";
+import axios from "axios";
+
+import { FaSun, FaCloudSun, FaCloud, FaSmog, FaTint } from "react-icons/fa";
+import { MdHelp } from "react-icons/md";
 
 const supabaseUrl = "https://qegghlcugbbvyuopfegq.supabase.co";
 const supabaseKey =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFlZ2dobGN1Z2Jidnl1b3BmZWdxIiwicm9sZSI6ImFub24iLCJpYXQiOjE2OTQ5NTU3NjMsImV4cCI6MjAxMDUzMTc2M30.HJf-DFvWbqRWqTIUjdJkeuQalXEAvqPfi-GN7lYQ-PY";
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-export const getUserInputLevel = async () => {
+export const getUserInputLevel = async (
+  setSnackbarSeverity,
+  setSnackbarMessage,
+  setSnackbarOpen
+) => {
   try {
-    const userInput = window.prompt("Please enter the risk level (1-10):", "1");
+    const userInput = window.prompt("Please enter the risk level (1-3):", "1");
+    // const userInput = await customInputDialog();
     if (userInput === null) {
-      throw new Error("User canceled input");
+      return null;
     }
     const level = parseInt(userInput);
-    if (isNaN(level) || level < 1 || level > 10) {
-      throw new Error("Invalid input. Please enter a number between 1 and 10.");
+    if (isNaN(level) || level < 1 || level > 3) {
+      setSnackbarSeverity("error");
+      setSnackbarMessage(
+        "Invalid input. Please enter a number between 1 and 3."
+      );
+      setSnackbarOpen(true);
+      return null;
     }
     return level;
   } catch (error) {
@@ -41,7 +55,6 @@ export const extractDataFromGeoJSON = (geoJSONData) => {
     throw error;
   }
 };
-
 export const callSavingFloodzoneGeomRPC = async ({
   name,
   level,
@@ -68,14 +81,14 @@ export const callSavingFloodzoneGeomRPC = async ({
 
     if (error) {
       console.error("RPC Error:", error);
-      throw new Error("Failed to call RPC: saving_floodzone_geom");
+      return { error: error.message };
     }
 
     console.log("RPC: saving_floodzone_geom called successfully:", data);
-    return data;
+    return { data };
   } catch (error) {
     console.error("Error calling RPC: saving_floodzone_geom", error);
-    throw error;
+    return { error: error.message };
   }
 };
 
@@ -128,7 +141,151 @@ export const formatGeoJSON = (floodzoneData) => {
 export const getInitialVisibilityState = (floodzoneData) => {
   const initialVisibility = {};
   for (const city of floodzoneData) {
-    initialVisibility[city.properties.name] = true; // Set all cities to visible initially
+    initialVisibility[city.properties.name] = true;
   }
   return initialVisibility;
+};
+
+export const fetchWeatherData = async (latitude, longitude) => {
+  try {
+    const position = await getCurrentPosition();
+    const lat = position.coords.latitude;
+    const lon = position.coords.longitude;
+
+    const response = await axios.get(
+      `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&hourly=temperature_2m,weathercode&current_weather=true&forecast_days=1`
+    );
+
+    if (response.status === 200) {
+      const data = response.data;
+
+      const currentTemperature = data.current_weather.temperature;
+      const currentWeatherCode = data.current_weather.weathercode;
+      const currentWeatherUnit = data.hourly_units.temperature_2m;
+
+      const hourlyForecastTime = data.hourly.time;
+      const hourlyForecastTemp = data.hourly.temperature_2m;
+      const hourlyForecastWeatherCode = data.hourly.weathercode;
+
+      const hourlyWeatherDataList = hourlyForecastTime.map((time, index) => {
+        return {
+          time,
+          temperature: hourlyForecastTemp[index],
+          weatherCode: hourlyForecastWeatherCode[index],
+          weatherDescription: getWeatherDescription(
+            hourlyForecastWeatherCode[index]
+          ),
+        };
+      });
+
+      return {
+        currentTemperature,
+        currentWeatherUnit,
+        currentWeatherCode,
+        hourlyWeatherDataList,
+      };
+    } else {
+      throw new Error(`Failed to fetch weather data: ${response.status}`);
+    }
+  } catch (error) {
+    throw new Error(`Failed to fetch weather data: ${error.message}`);
+  }
+};
+
+async function getCurrentPosition() {
+  return new Promise((resolve, reject) => {
+    navigator.geolocation.getCurrentPosition(
+      (position) => resolve(position),
+      (error) => reject(error)
+    );
+  });
+}
+
+export const getAddressFromCoordinates = async (latitude, longitude) => {
+  const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`;
+
+  try {
+    const response = await axios.get(url);
+    if (response.status === 200) {
+      const address = response.data.display_name;
+      return address;
+    } else {
+      throw new Error(`Failed to get address: ${response.status}`);
+    }
+  } catch (error) {
+    console.error("Failed to get address:", error);
+    throw error;
+  }
+};
+
+export const getWeatherDescription = (weatherCode) => {
+  switch (weatherCode) {
+    case 0:
+      return "Clear Sky";
+    case 1:
+      return "Mainly Clear";
+    case 2:
+      return "Partly Cloudy";
+    case 3:
+      return "Overcast";
+    case 45:
+      return "Fog";
+    case 48:
+      return "Depositing Rime Fog";
+    case 51:
+      return "Drizzle: Light Intensity";
+    case 53:
+      return "Drizzle: Moderate Intensity";
+    case 55:
+      return "Drizzle: Dense Intensity";
+    case 56:
+      return "Freezing Drizzle: Light";
+    case 57:
+      return "Freezing Drizzle: Dense Intensity";
+    case 61:
+      return "Rain: Slight Intensity";
+    case 63:
+      return "Rain: Moderate Intensity";
+    case 65:
+      return "Rain: Heavy Intensity";
+    case 66:
+      return "Freezing Rain: Light Intensity";
+    case 67:
+      return "Freezing Rain: Heavy Intensity";
+    case 80:
+      return "Rain Showers: Slight";
+    case 81:
+      return "Rain Showers: Moderate";
+    case 82:
+      return "Rain showers: Violent";
+    case 95:
+      return "Thunderstorm";
+    case 96:
+      return "Thunderstorm: slight hail";
+    case 99:
+      return "Thunderstorm: heavy hail";
+    default:
+      return "Unknown";
+  }
+};
+
+export const getWeatherIcon = (weatherCode) => {
+  switch (weatherCode) {
+    case 0:
+      return <FaSun size={35} color="#007bff" />;
+    case 1:
+      return <FaCloudSun size={35} color="#007bff" />;
+    case 2:
+      return <FaCloud size={35} color="#007bff" />;
+    case 3:
+      return <FaCloud size={35} color="#007bff" />;
+    case 45:
+      return <FaSmog size={35} color="#007bff" />;
+    case 48:
+      return <FaCloud size={35} color="#007bff" />;
+    case 51:
+      return <FaTint size={35} color="#007bff" />;
+    default:
+      return <MdHelp size={35} color="#007bff" />;
+  }
 };
