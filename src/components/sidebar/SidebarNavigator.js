@@ -1,32 +1,24 @@
-// SidebarNavigator.js
-import { useState } from "react";
+//sidebarNavigator.js
+import React, { useState } from "react";
+import { useRouter } from "next/router";
 import KeyboardDoubleArrowRightIcon from "@mui/icons-material/KeyboardDoubleArrowRight";
 import KeyboardDoubleArrowLeftIcon from "@mui/icons-material/KeyboardDoubleArrowLeft";
 import Logout from "@mui/icons-material/Logout";
-import { useRouter } from "next/router";
-import {
-  validateGeoJSON,
-  callSavingFloodzoneGeomRPC,
-  getUserInputLevel,
-  extractDataFromGeoJSON,
-} from "../utils/utils";
-import styles from "@/styles/Sidebar.module.css";
 import Image from "next/image";
 import shifticon from "../../assets/shifticon.png";
 import { navData } from "./SidebarData";
 import UploadContent from "../sidebar/sidebar_components/uploadContent";
+import SettingsContent from "../sidebar/sidebar_components/settingsContent";
+import styles from "@/styles/Sidebar.module.css";
 
-export default function SidebarNavigator({ floodzoneData }) {
+export default function SidebarNavigator({
+  cityVisibility,
+  setCityVisibility,
+  floodzoneData,
+}) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [activeNavItem, setActiveNavItem] = useState(null);
-
-  const initialCityVisibility = {};
-  floodzoneData.forEach((geoJSONData) => {
-    initialCityVisibility[geoJSONData.properties.cityName] = true;
-  });
-
-  const [cityVisibility, setCityVisibility] = useState(initialCityVisibility);
 
   const toggleOpen = () => {
     setOpen(!open);
@@ -48,7 +40,6 @@ export default function SidebarNavigator({ floodzoneData }) {
       `.${styles.sideitem}[data-id="${itemId}"]`
     );
     clickedItem.style.backgroundColor = "#0e256a";
-    console.log(clickedItem);
   };
 
   const handleUpload = async (event) => {
@@ -81,16 +72,24 @@ export default function SidebarNavigator({ floodzoneData }) {
     router.push("/loginPage");
   };
 
-  // const handleUploadButtonClick = () => {
-  //   const fileInput = document.getElementById("fileInput");
-  //   fileInput.click();
-  // };
-
   const toggleCityVisibility = (cityName) => {
     setCityVisibility((prevVisibility) => ({
       ...prevVisibility,
       [cityName]: !prevVisibility[cityName],
     }));
+  };
+
+  const toggleAllVisibility = () => {
+    const allVisible = Object.values(cityVisibility).every(
+      (visible) => visible
+    );
+    const newVisibility = {};
+
+    floodzoneData.forEach((city) => {
+      newVisibility[city.properties.name] = !allVisible;
+    });
+
+    setCityVisibility(newVisibility);
   };
 
   const renderNavContent = () => {
@@ -103,21 +102,13 @@ export default function SidebarNavigator({ floodzoneData }) {
         return <div>Statistics Content</div>;
       case 3:
         return (
-          <div>
-            <h2>Settings</h2>
-            {Object.keys(cityVisibility).map((cityName) => (
-              <div key={cityName}>
-                <input
-                  type="checkbox"
-                  checked={cityVisibility[cityName]}
-                  onChange={() => toggleCityVisibility(cityName)}
-                />
-                <label>{cityName}</label>
-              </div>
-            ))}
-          </div>
+          <SettingsContent
+            cityVisibility={cityVisibility}
+            toggleCityVisibility={toggleCityVisibility}
+            floodzoneData={floodzoneData}
+            toggleAllVisibility={toggleAllVisibility}
+          />
         );
-      // return <div>Settings Content</div>;
       default:
         return null;
     }
@@ -125,10 +116,8 @@ export default function SidebarNavigator({ floodzoneData }) {
 
   return (
     <div className={styles.sidebarContainer}>
-      {/* Sidebar content */}
       <div className={open ? styles.sidenav : styles.sidenavClosed}>
         <div className={styles.spacebetweenTopAndBottom}>
-          {/* Logo and toggle button */}
           <div>
             <div
               className={
@@ -164,7 +153,6 @@ export default function SidebarNavigator({ floodzoneData }) {
                 )}
               </button>
             </div>
-            {/* Sidebar navigation items */}
             <div
               className={open ? styles.sidebarItems : styles.sidebarItemsClosed}
             >
@@ -192,10 +180,8 @@ export default function SidebarNavigator({ floodzoneData }) {
                 </div>
               ))}
             </div>
-            {/* Nav contents */}
             <div className={styles.navContents}>{renderNavContent()}</div>
           </div>
-          {/* Logout button */}
           <div
             className={
               open ? styles.sidenavBottomBar : styles.sidenavBottomBarClosed
