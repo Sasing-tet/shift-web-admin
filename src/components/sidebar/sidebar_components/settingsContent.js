@@ -63,32 +63,75 @@ const SettingsContent = ({
 
   return (
     <div className={styles.settingsContent}>
-      <h2>Flood Zone Heatmap</h2>
-      <h5>by City</h5>
-      <div>
-        <input type="checkbox" checked={toggleAll} onChange={handleToggleAll} />
-        <label>Toggle All</label>
+      <p className={styles.settingsTitle}>Flood Zone Heatmap</p>
+      <p className={styles.settingsSubtitle}>by City</p>
+      <br />
+      <div className={styles.SettsHeader}>
+        <div className={styles.SettsToggleAll}>
+          <input
+            className={styles.inputCheckbox}
+            type="checkbox"
+            checked={toggleAll}
+            onChange={handleToggleAll}
+          />
+          <label>Toggle All</label>
+        </div>
+        <div className={styles.legendRow}>
+          <div className={styles.legend}>
+            <div className={styles.legendItem}>
+              <span>1: </span>
+              <div
+                className={styles.legendBox}
+                style={{ backgroundColor: "green" }}
+              ></div>
+            </div>
+            <div className={styles.legendItem}>
+              <span>2: </span>
+              <div
+                className={styles.legendBox}
+                style={{ backgroundColor: "yellow" }}
+              ></div>
+            </div>
+            <div className={styles.legendItem}>
+              <span>3: </span>
+              <div
+                className={styles.legendBox}
+                style={{ backgroundColor: "red" }}
+              ></div>
+            </div>
+          </div>
+        </div>
       </div>
       {Object.entries(groupedData).map(([cityName, cities]) => (
-        <div key={cityName}>
-          <input
-            type="checkbox"
-            checked={cities.every(
-              (city) => cityVisibility[city.properties.name]
-            )}
-            onChange={() => handleGroupCheckboxChange(cities)}
-          />
-          <label onClick={() => handleCityToggle(cityName)}>{cityName}</label>
+        <div className={styles.groupHeatmap} key={cityName}>
+          <div
+            className={styles.groupedLabel}
+            onClick={() => handleCityToggle(cityName)}
+          >
+            <input
+              className={styles.inputCheckbox}
+              type="checkbox"
+              checked={cities.every(
+                (city) => cityVisibility[city.properties.name]
+              )}
+              onChange={() => handleGroupCheckboxChange(cities)}
+            />
+            <label>{formatGroupName(cityName)}</label>{" "}
+          </div>
           {openCities[cityName] && (
-            <div>
+            <div className={styles.cityFloodzoneLevel}>
               {cities.map((city) => (
-                <div key={city.properties.name}>
+                <div
+                  className={styles.cityFloodzoneLevelInput}
+                  key={city.properties.name}
+                >
                   <input
+                    className={styles.inputCheckbox}
                     type="checkbox"
                     checked={cityVisibility[city.properties.name]}
                     onChange={() => handleCheckboxChange(city.properties.name)}
                   />
-                  <label>{city.properties.name}</label>
+                  <label>{formatCityName(city.properties.name)}</label>{" "}
                 </div>
               ))}
             </div>
@@ -97,6 +140,15 @@ const SettingsContent = ({
       ))}
     </div>
   );
+};
+
+const formatGroupName = (cityName) => {
+  return cityName.replace(/([a-z])([A-Z])/g, "$1 $2");
+};
+
+const formatCityName = (cityName) => {
+  const parts = cityName.split("_");
+  return `${parts[0]} Flood Level: ${parts[1]}`;
 };
 
 export default SettingsContent;
