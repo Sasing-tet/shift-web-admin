@@ -289,3 +289,43 @@ export const getWeatherIcon = (weatherCode) => {
       return <MdHelp size={35} color="#007bff" />;
   }
 };
+
+export const signIn = async (email, password) => {
+  try {
+    const response = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    console.log("Authentication Response:", response);
+
+    if (response.error) {
+      throw new Error(`${response.error.message}`);
+    }
+
+    if(response.data && response.data.session) {
+      const { user } = response.data;
+      const { data, error } = await supabase
+        .from('admin')
+        .select("*")
+        .eq('username', user.email);
+
+      console.log("Admin Data:", data);
+
+      if (error) {
+        throw new Error(`Error fetching admin data`);
+      }
+
+      if(data && data.length > 0){
+        return true;
+      }
+      else{
+        throw new Error("User is not an admin.");
+      }
+    } else {
+      throw new Error("User session not found.");
+    }
+  } catch (error) {
+    throw new Error(`Login failed: ${error.message}`);
+  }
+}

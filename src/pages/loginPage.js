@@ -7,14 +7,26 @@ import Image from "next/image";
 import shiftLoginImage from "../assets/web login image2.jpg";
 import shiftLogoWithText from "../assets/capstone logo with text white.png";
 import shiftLoginExtraImg from "../assets/login extra1.png";
+import {
+  signIn,
+} from "../components/utils/utils.js"
 
 const LoginPage = () => {
   const router = useRouter();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");  
 
-  const handleLogin = () => {
-    router.push("/homePage");
+  const handleLogin = async () => {
+    try {
+      const response = await signIn(username, password);
+      if (response) {
+        router.push("/homePage");
+      }
+    } catch (error) {
+      setError(error.message);
+      console.log( error.message)
+    }
   };
 
   return (
