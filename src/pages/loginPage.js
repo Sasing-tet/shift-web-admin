@@ -7,15 +7,13 @@ import Image from "next/image";
 import shiftLoginImage from "../assets/web login image2.jpg";
 import shiftLogoWithText from "../assets/capstone logo with text white.png";
 import shiftLoginExtraImg from "../assets/login extra1.png";
-import {
-  signIn,
-} from "../components/utils/utils.js"
+import { signIn } from "../components/utils/utils.js";
 
 const LoginPage = () => {
   const router = useRouter();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");  
+  const [error, setError] = useState("");
 
   const handleLogin = async () => {
     try {
@@ -25,7 +23,7 @@ const LoginPage = () => {
       }
     } catch (error) {
       setError(error.message);
-      console.log( error.message)
+      console.log(error.message);
     }
   };
 
@@ -73,7 +71,7 @@ const LoginPage = () => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
-            <label className={styles.fieldLabelBtn}>Forgot password?</label>
+            {/* <label className={styles.fieldLabelBtn}>Forgot password?</label> */}
 
             <div className={styles.loginButtonContainer}>
               <button

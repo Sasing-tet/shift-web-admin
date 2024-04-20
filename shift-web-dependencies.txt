@@ -1,0 +1,8 @@
+react
+@supabase/supabase-js
+bootstrap
+react-leaflet
+axios
+luxon
+react-icons
+randomcolor

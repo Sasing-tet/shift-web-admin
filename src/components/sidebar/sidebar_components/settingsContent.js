@@ -131,7 +131,7 @@ const SettingsContent = ({
                     checked={cityVisibility[city.properties.name]}
                     onChange={() => handleCheckboxChange(city.properties.name)}
                   />
-                  <label>{formatCityName(city.properties.name)}</label>{" "}
+                  <label>{formatCityName(city)}</label>{" "}
                 </div>
               ))}
             </div>
@@ -146,9 +146,11 @@ const formatGroupName = (cityName) => {
   return cityName.replace(/([a-z])([A-Z])/g, "$1 $2");
 };
 
-const formatCityName = (cityName) => {
-  const parts = cityName.split("_");
-  return `${parts[0]} Flood Level: ${parts[1]}`;
+const formatCityName = (city) => {
+  console.log("City:", city);
+  return `${city.properties.name.split("_")[0]} Flood Level: ${
+    city.properties.level
+  }`;
 };
 
 export default SettingsContent;

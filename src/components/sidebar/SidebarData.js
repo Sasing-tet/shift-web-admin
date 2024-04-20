@@ -16,16 +16,16 @@ export const navData = [
     text: "Upload",
     link: "upload",
   },
-  // {
-  //   id: 2,
-  //   icon: <BarChartIcon />,
-  //   text: "Statistics",
-  //   link: "statistics",
-  // },
+  {
+    id: 2,
+    icon: <BarChartIcon />,
+    text: "Statistics",
+    link: "statistics",
+  },
   {
     id: 3,
     icon: <SettingsIcon />,
-    text: "Floodzone Data",
-    link: "settings",
+    text: "Flood Data",
+    link: "Flood Data",
   },
 ];

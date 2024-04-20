@@ -303,12 +303,12 @@ export const signIn = async (email, password) => {
       throw new Error(`${response.error.message}`);
     }
 
-    if(response.data && response.data.session) {
+    if (response.data && response.data.session) {
       const { user } = response.data;
       const { data, error } = await supabase
-        .from('admin')
+        .from("admin")
         .select("*")
-        .eq('username', user.email);
+        .eq("username", user.email);
 
       console.log("Admin Data:", data);
 
@@ -316,10 +316,9 @@ export const signIn = async (email, password) => {
         throw new Error(`Error fetching admin data`);
       }
 
-      if(data && data.length > 0){
+      if (data && data.length > 0) {
         return true;
-      }
-      else{
+      } else {
         throw new Error("User is not an admin.");
       }
     } else {
@@ -328,4 +327,68 @@ export const signIn = async (email, password) => {
   } catch (error) {
     throw new Error(`Login failed: ${error.message}`);
   }
-}
+};
+
+export const fetchSourcedRouteData = async () => {
+  try {
+    const { data, error } = await supabase.from("alt_route_view").select("*");
+    console.log("Sourced route data:", data);
+    if (error) {
+      throw error;
+    }
+    return data;
+  } catch (error) {
+    console.error("Error fetching Sourced route data:", error.message);
+    throw error;
+  }
+};
+
+export const formatSourcedRouteData = (sourcedRouteData) => {
+  const features = [];
+
+  sourcedRouteData.forEach((route) => {
+    features.push({
+      type: "Feature",
+      properties: {
+        driver_id: route.driver_id,
+        alt_route_id: route.alt_route_id,
+        ride_id: route.ride_id,
+        frequency: route.frequency,
+      },
+      geometry: {
+        type: "LineString",
+        coordinates: route.coordinates.coordinates,
+      },
+    });
+  });
+
+  return {
+    type: "FeatureCollection",
+    name: "SourcedRouteData",
+    crs: {
+      type: "name",
+      properties: { name: "urn:ogc:def:crs:OGC:1.3:CRS84" },
+    },
+    features,
+  };
+};
+
+export const fetchDriverData = async (driverId) => {
+  try {
+    const { data, error } = await supabase
+      .from("driver")
+      .select("*")
+      .filter("driver_id", "eq", driverId)
+      .single();
+
+    console.log("Driver data:", data);
+    if (error) {
+      throw new Error("Failed to fetch driver data");
+    }
+
+    return data;
+  } catch (error) {
+    console.error("Error fetching driver data:", error.message);
+    throw error;
+  }
+};

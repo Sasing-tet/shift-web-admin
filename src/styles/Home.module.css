@@ -143,6 +143,14 @@
   align-items: center;
 }
 
+.tooltipCustom {
+  background-color: white;
+  border: 1px solid black;
+  padding: 10px;
+  border-radius: 5px;
+  opacity: 1;
+}
+
 /* .container {
   padding: 0 2rem;
 }

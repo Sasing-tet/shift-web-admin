@@ -10,11 +10,14 @@ import { navData } from "./SidebarData";
 import UploadContent from "../sidebar/sidebar_components/uploadContent";
 import SettingsContent from "../sidebar/sidebar_components/settingsContent";
 import styles from "@/styles/Sidebar.module.css";
+import StatisticsContent from "./sidebar_components/statisticsContent";
 
 export default function SidebarNavigator({
   cityVisibility,
   setCityVisibility,
   floodzoneData,
+  sourcedRouteData,
+  mapRef,
 }) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
@@ -92,6 +95,13 @@ export default function SidebarNavigator({
     setCityVisibility(newVisibility);
   };
 
+  const handleZoomInClick = (route) => {
+    if (mapRef.current) {
+      const bounds = L.geoJSON(route).getBounds();
+      mapRef.current.fitBounds(bounds, { maxZoom: 18 });
+    }
+  };
+
   const renderNavContent = () => {
     if (!open || activeNavItem === null) return null;
 
@@ -99,7 +109,12 @@ export default function SidebarNavigator({
       case 1:
         return <UploadContent handleUpload={handleUpload} />;
       case 2:
-        return <div>Statistics Content</div>;
+        return (
+          <StatisticsContent
+            sourcedRouteData={sourcedRouteData}
+            onZoomInClick={handleZoomInClick}
+          />
+        );
       case 3:
         return (
           <SettingsContent
