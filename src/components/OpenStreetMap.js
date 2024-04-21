@@ -64,8 +64,8 @@ const Map2 = ({
 
       layer.on("click", () => {
         layer.bringToFront();
-        const bounds = layer.getBounds();
-        mapRef.current.fitBounds(bounds, { maxZoom: 18 });
+        // const bounds = layer.getBounds();
+        // mapRef.current.fitBounds(bounds, { maxZoom: 18 });
       });
     } catch (error) {
       console.error("Error fetching driver data:", error.message);

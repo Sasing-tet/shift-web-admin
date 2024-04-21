@@ -344,22 +344,57 @@ export const fetchSourcedRouteData = async () => {
 };
 
 export const formatSourcedRouteData = (sourcedRouteData) => {
-  const features = [];
+  const uniqueRoutes = [];
 
   sourcedRouteData.forEach((route) => {
-    features.push({
-      type: "Feature",
-      properties: {
-        driver_id: route.driver_id,
-        alt_route_id: route.alt_route_id,
-        ride_id: route.ride_id,
-        frequency: route.frequency,
-      },
-      geometry: {
-        type: "LineString",
-        coordinates: route.coordinates.coordinates,
-      },
-    });
+    // Calculate the similarity score for each new route compared to existing routes
+    let similarRoutesCount = 0;
+
+    for (const existingRoute of uniqueRoutes) {
+      const existingCoordinates = existingRoute.geometry.coordinates;
+      const newCoordinates = route.coordinates.coordinates;
+      let similarCoordinatesCount = 0;
+
+      for (let i = 0; i < newCoordinates.length; i++) {
+        const newCoord = newCoordinates[i];
+
+        for (let j = 0; j < existingCoordinates.length; j++) {
+          const existingCoord = existingCoordinates[j];
+
+          if (
+            Math.abs(existingCoord[0] - newCoord[0]) < 0.0001 &&
+            Math.abs(existingCoord[1] - newCoord[1]) < 0.0001
+          ) {
+            similarCoordinatesCount++;
+            break;
+          }
+        }
+      }
+
+      if (
+        similarCoordinatesCount / newCoordinates.length >= 0.9 &&
+        similarCoordinatesCount / existingCoordinates.length >= 0.9
+      ) {
+        similarRoutesCount++;
+        break;
+      }
+    }
+
+    if (similarRoutesCount === 0) {
+      uniqueRoutes.push({
+        type: "Feature",
+        properties: {
+          driver_id: route.driver_id,
+          alt_route_id: route.alt_route_id,
+          ride_id: route.ride_id,
+          frequency: route.frequency,
+        },
+        geometry: {
+          type: "LineString",
+          coordinates: route.coordinates.coordinates,
+        },
+      });
+    }
   });
 
   return {
@@ -369,9 +404,39 @@ export const formatSourcedRouteData = (sourcedRouteData) => {
       type: "name",
       properties: { name: "urn:ogc:def:crs:OGC:1.3:CRS84" },
     },
-    features,
+    features: uniqueRoutes,
   };
 };
+
+// export const formatSourcedRouteData = (sourcedRouteData) => {
+//   const features = [];
+
+//   sourcedRouteData.forEach((route) => {
+//     features.push({
+//       type: "Feature",
+//       properties: {
+//         driver_id: route.driver_id,
+//         alt_route_id: route.alt_route_id,
+//         ride_id: route.ride_id,
+//         frequency: route.frequency,
+//       },
+//       geometry: {
+//         type: "LineString",
+//         coordinates: route.coordinates.coordinates,
+//       },
+//     });
+//   });
+
+//   return {
+//     type: "FeatureCollection",
+//     name: "SourcedRouteData",
+//     crs: {
+//       type: "name",
+//       properties: { name: "urn:ogc:def:crs:OGC:1.3:CRS84" },
+//     },
+//     features,
+//   };
+// };
 
 export const fetchDriverData = async (driverId) => {
   try {
@@ -381,7 +446,7 @@ export const fetchDriverData = async (driverId) => {
       .filter("driver_id", "eq", driverId)
       .single();
 
-    console.log("Driver data:", data);
+    //console.log("Driver data:", data);
     if (error) {
       throw new Error("Failed to fetch driver data");
     }
