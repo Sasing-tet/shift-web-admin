@@ -34,7 +34,6 @@ const home = () => {
         const data = await fetchFloodzoneData();
         const formattedData = formatGeoJSON(data);
         setFloodzoneData(formattedData.features);
-
         const initialVisibility = getInitialVisibilityState(
           formattedData.features
         );

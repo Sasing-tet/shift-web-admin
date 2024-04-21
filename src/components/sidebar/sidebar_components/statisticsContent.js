@@ -34,11 +34,11 @@ const StatisticsContent = ({ sourcedRouteData, onZoomInClick }) => {
     fetchData();
   }, [sourcedRouteData]);
 
-  const toggleRouteExpansion = (driverId) => {
+  const toggleRouteExpansion = (routeId) => {
     setExpandedRoutes((prevExpandedRoutes) =>
-      prevExpandedRoutes.includes(driverId)
-        ? prevExpandedRoutes.filter((id) => id !== driverId)
-        : [...prevExpandedRoutes, driverId]
+      prevExpandedRoutes.includes(routeId)
+        ? prevExpandedRoutes.filter((id) => id !== routeId)
+        : [...prevExpandedRoutes, routeId]
     );
   };
 
@@ -50,8 +50,8 @@ const StatisticsContent = ({ sourcedRouteData, onZoomInClick }) => {
       {sourcedRouteData.map((route, index) => (
         <div
           className={styles.groupedAltRoute}
-          key={route.properties.driver_id}
-          onClick={() => toggleRouteExpansion(route.properties.driver_id)}
+          key={route.properties.alt_route_id}
+          onClick={() => toggleRouteExpansion(index)}
         >
           <div className={styles.groupedAltLabel}>
             <div className={styles.altRouteLabel}>
@@ -70,7 +70,7 @@ const StatisticsContent = ({ sourcedRouteData, onZoomInClick }) => {
                 </button>
               </div>
             </div>
-            {expandedRoutes.includes(route.properties.driver_id) && (
+            {expandedRoutes.includes(index) && (
               <div className={styles.expandedContent}>
                 <div className={styles.driverImg}>
                   {" "}
