@@ -347,7 +347,6 @@ export const formatSourcedRouteData = (sourcedRouteData) => {
   const uniqueRoutes = [];
 
   sourcedRouteData.forEach((route) => {
-    // Calculate the similarity score for each new route compared to existing routes
     let similarRoutesCount = 0;
 
     for (const existingRoute of uniqueRoutes) {
