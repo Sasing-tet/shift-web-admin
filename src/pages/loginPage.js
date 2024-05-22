@@ -1,4 +1,5 @@
 // LoginPage.js
+import Head from "next/head";
 import { useState } from "react";
 import { useRouter } from "next/router";
 import styles from "@/styles/Login.module.css";
@@ -6,18 +7,32 @@ import Image from "next/image";
 import shiftLoginImage from "../assets/web login image2.jpg";
 import shiftLogoWithText from "../assets/capstone logo with text white.png";
 import shiftLoginExtraImg from "../assets/login extra1.png";
+import { signIn } from "../components/utils/utils.js";
 
 const LoginPage = () => {
   const router = useRouter();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
 
-  const handleLogin = () => {
-    router.push("/homePage");
+  const handleLogin = async () => {
+    try {
+      const response = await signIn(username, password);
+      if (response) {
+        router.push("/homePage");
+      }
+    } catch (error) {
+      setError(error.message);
+      console.log(error.message);
+    }
   };
 
   return (
     <div className={styles.loginContainer}>
+      <Head>
+        <title>SHIFT Admin</title>
+        <link rel="icon" href="/shifticon.png" />
+      </Head>
       <div className={styles.loginFormContainer}>
         <div>
           <Image
@@ -56,7 +71,7 @@ const LoginPage = () => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
-            <label className={styles.fieldLabelBtn}>Forgot password?</label>
+            {/* <label className={styles.fieldLabelBtn}>Forgot password?</label> */}
 
             <div className={styles.loginButtonContainer}>
               <button

@@ -1,35 +1,72 @@
-// SidebarNavigator.js
-import { useState } from "react";
+//sidebarNavigator.js
+import React, { useState } from "react";
+import { useRouter } from "next/router";
 import KeyboardDoubleArrowRightIcon from "@mui/icons-material/KeyboardDoubleArrowRight";
 import KeyboardDoubleArrowLeftIcon from "@mui/icons-material/KeyboardDoubleArrowLeft";
 import Logout from "@mui/icons-material/Logout";
-import { useRouter } from "next/router";
-import { uploadGeoJSONToSupabase } from "../utils/utils";
-import styles from "@/styles/Sidebar.module.css";
 import Image from "next/image";
 import shifticon from "../../assets/shifticon.png";
 import { navData } from "./SidebarData";
-import UploadFileIcon from "@mui/icons-material/UploadFile";
+import UploadContent from "../sidebar/sidebar_components/uploadContent";
+import SettingsContent from "../sidebar/sidebar_components/settingsContent";
+import styles from "@/styles/Sidebar.module.css";
+import StatisticsContent from "./sidebar_components/statisticsContent";
 
-export default function SidebarNavigator() {
+export default function SidebarNavigator({
+  cityVisibility,
+  setCityVisibility,
+  floodzoneData,
+  sourcedRouteData,
+  mapRef,
+}) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
+  const [activeNavItem, setActiveNavItem] = useState(null);
 
   const toggleOpen = () => {
     setOpen(!open);
+    if (!open) {
+      setActiveNavItem(null);
+    }
+  };
+
+  const handleNavItemClicked = (itemId) => {
+    setOpen(true);
+    setActiveNavItem(itemId);
+
+    const sidebarItems = document.querySelectorAll(`.${styles.sideitem}`);
+    sidebarItems.forEach((item) => {
+      item.style.backgroundColor = "transparent";
+    });
+
+    const clickedItem = document.querySelector(
+      `.${styles.sideitem}[data-id="${itemId}"]`
+    );
+    clickedItem.style.backgroundColor = "#0e256a";
   };
 
   const handleUpload = async (event) => {
     const file = event.target.files[0];
     if (file) {
       try {
-        const fileContent = await file.text(); // Read the file content
-        await uploadGeoJSONToSupabase(fileContent); // Upload GeoJSON to Supabase
-        // Handle successful upload
+        const fileContent = await file.text();
+
+        const level = await getUserInputLevel();
+
+        const { name, crs, description, coordinates_text } =
+          extractDataFromGeoJSON(fileContent);
+
+        await callSavingFloodzoneGeomRPC({
+          name,
+          level,
+          crs,
+          description,
+          coordinates_text,
+        });
+
         console.log("GeoJSON uploaded successfully!");
       } catch (error) {
         console.error("Error uploading GeoJSON:", error);
-        // Handle upload error
       }
     }
   };
@@ -38,34 +75,64 @@ export default function SidebarNavigator() {
     router.push("/loginPage");
   };
 
-  const handleUploadButtonClick = () => {
-    const fileInput = document.getElementById("fileInput");
-    fileInput.click();
+  const toggleCityVisibility = (cityName) => {
+    setCityVisibility((prevVisibility) => ({
+      ...prevVisibility,
+      [cityName]: !prevVisibility[cityName],
+    }));
   };
 
-  const handleProceedButtonClick = async () => {
-    const fileInput = document.getElementById("fileInput");
-    if (fileInput && fileInput.files.length > 0) {
-      const file = fileInput.files[0];
-      try {
-        const fileContent = await file.text(); // Read the file content
-        await uploadGeoJSONToSupabase(fileContent); // Upload GeoJSON to Supabase
-        console.log("GeoJSON uploaded successfully!");
-        console.log("Proceed button clicked!");
-      } catch (error) {
-        console.error("Error uploading GeoJSON:", error);
-        // Handle upload error
-      }
-    } else {
-      console.log("No file selected!");
+  const toggleAllVisibility = () => {
+    const allVisible = Object.values(cityVisibility).every(
+      (visible) => visible
+    );
+    const newVisibility = {};
+
+    floodzoneData.forEach((city) => {
+      newVisibility[city.properties.name] = !allVisible;
+    });
+
+    setCityVisibility(newVisibility);
+  };
+
+  const handleZoomInClick = (route) => {
+    if (mapRef.current) {
+      const bounds = L.geoJSON(route).getBounds();
+      mapRef.current.fitBounds(bounds, { maxZoom: 18 });
     }
   };
+
+  const renderNavContent = () => {
+    if (!open || activeNavItem === null) return null;
+
+    switch (activeNavItem) {
+      case 1:
+        return <UploadContent handleUpload={handleUpload} />;
+      case 2:
+        return (
+          <StatisticsContent
+            sourcedRouteData={sourcedRouteData}
+            onZoomInClick={handleZoomInClick}
+          />
+        );
+      case 3:
+        return (
+          <SettingsContent
+            cityVisibility={cityVisibility}
+            toggleCityVisibility={toggleCityVisibility}
+            floodzoneData={floodzoneData}
+            toggleAllVisibility={toggleAllVisibility}
+          />
+        );
+      default:
+        return null;
+    }
+  };
+
   return (
     <div className={styles.sidebarContainer}>
-      {/* Sidebar content */}
       <div className={open ? styles.sidenav : styles.sidenavClosed}>
         <div className={styles.spacebetweenTopAndBottom}>
-          {/* Logo and toggle button */}
           <div>
             <div
               className={
@@ -101,12 +168,18 @@ export default function SidebarNavigator() {
                 )}
               </button>
             </div>
-            {/* Sidebar navigation items */}
             <div
               className={open ? styles.sidebarItems : styles.sidebarItemsClosed}
             >
               {navData.map((item) => (
-                <div key={item.id} className={styles.sideitem}>
+                <div
+                  key={item.id}
+                  className={`${styles.sideitem} ${
+                    activeNavItem === item.id ? "active" : ""
+                  }`}
+                  onClick={() => handleNavItemClicked(item.id)}
+                  data-id={item.id}
+                >
                   <div
                     className={
                       open ? styles.navItemIcon : styles.navItemIconClosed
@@ -121,32 +194,9 @@ export default function SidebarNavigator() {
                   </div>
                 </div>
               ))}
-              {/* File upload button */}
-              <label className={styles.sideitem}>
-                <div className={styles.navItemIcon}>
-                  <UploadFileIcon />
-                </div>
-                <input
-                  type="file"
-                  accept=".geojson"
-                  className={styles.uploadInput}
-                  id="fileInput"
-                  onChange={handleUpload}
-                  style={{ display: "none" }} // Hide the file input
-                />
-                <div className={styles.linkText}>Upload GeoJSON</div>
-              </label>
-
-              {/* Proceed button */}
-              <button
-                className={styles.proceedButton}
-                onClick={handleProceedButtonClick}
-              >
-                Proceed with Upload
-              </button>
             </div>
+            <div className={styles.navContents}>{renderNavContent()}</div>
           </div>
-          {/* Logout button */}
           <div
             className={
               open ? styles.sidenavBottomBar : styles.sidenavBottomBarClosed

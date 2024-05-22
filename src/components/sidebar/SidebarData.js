@@ -4,12 +4,12 @@ import BarChartIcon from "@mui/icons-material/BarChart";
 import SettingsIcon from "@mui/icons-material/Settings";
 
 export const navData = [
-  {
-    id: 0,
-    icon: <HomeIcon />,
-    text: "Home",
-    link: "/",
-  },
+  // {
+  //   id: 0,
+  //   icon: <HomeIcon />,
+  //   text: "Home",
+  //   link: "/",
+  // },
   {
     id: 1,
     icon: <UploadFile />,
@@ -25,7 +25,7 @@ export const navData = [
   {
     id: 3,
     icon: <SettingsIcon />,
-    text: "Settings",
-    link: "settings",
+    text: "Flood Data",
+    link: "Flood Data",
   },
 ];
